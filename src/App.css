@@ -1,5 +1,16 @@
+.AppContainer {
+  background: blueviolet;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .App {
+  background-color: #282c34;
   text-align: center;
+  outline: white solid 2px;
+  width: 64em;
+  max-width: 64em;
 }
 
 .App-logo {
@@ -13,15 +24,19 @@
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.App > header,
+.App > footer {
+  height: 20vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+}
+
+.App > footer {
+  height: 10vh;
 }
 
 .App-link {
@@ -35,4 +50,60 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/*region Row*/
+
+.HeightBasedRow {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: auto;
+}
+
+.RowItemContainer {
+  flex: 1 1 auto;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.HeightBasedSquare {
+  width: 8em;
+  height: 8em;
+}
+
+/*endregion*/
+
+
+.TileSpace {
+
+
+  background-color: #015555;
+  outline: white solid 2px;
+}
+
+.Tile,
+.TileSpace {
+  border-radius: 5%;
+}
+
+.Tile {
+  width: 100%;
+  height: 100%;
+  background: #eee3cd;
+  font-size: 6em;
+
+  text-align: center;
+  color: #301905;
+
+  user-select: none;
+}
+
+.WordEntryArea,
+.ActiveTilesRow,
+.InactiveTilesRow {
+  margin-top: 2em;
+  margin-bottom: 2em;
 }
