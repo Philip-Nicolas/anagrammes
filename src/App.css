@@ -1,77 +1,77 @@
 .AppContainer {
-  background: blueviolet;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    background: blueviolet;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .App {
-  background-color: #282c34;
-  text-align: center;
-  outline: white solid 2px;
-  width: 64em;
-  max-width: 64em;
+    background-color: #282c34;
+    text-align: center;
+    outline: white solid 2px;
+    width: 64rem;
+    max-width: 64rem;
 }
 
 .App-logo {
-  height: 40vmin;
-  pointer-events: none;
+    height: 40vmin;
+    pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+    .App-logo {
+        animation: App-logo-spin infinite 20s linear;
+    }
 }
 
 .App > header,
 .App > footer {
-  height: 20vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+    height: 20vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
 }
 
 .App > footer {
-  height: 10vh;
+    height: 10vh;
 }
 
 .App-link {
-  color: #61dafb;
+    color: #61dafb;
 }
 
 @keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /*region Row*/
 
 .HeightBasedRow {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  height: auto;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: auto;
 }
 
 .RowItemContainer {
-  flex: 1 1 auto;
+    flex: 1 1 auto;
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .HeightBasedSquare {
-  width: 8em;
-  height: 8em;
+    width: 8rem;
+    height: 8rem;
 }
 
 /*endregion*/
@@ -80,30 +80,30 @@
 .TileSpace {
 
 
-  background-color: #015555;
-  outline: white solid 2px;
+    background-color: #015555;
+    outline: white solid 2px;
 }
 
 .Tile,
 .TileSpace {
-  border-radius: 5%;
+    border-radius: 5%;
 }
 
 .Tile {
-  width: 100%;
-  height: 100%;
-  background: #eee3cd;
-  font-size: 6em;
+    /*width: 100%;*/
+    /*height: 100%;*/
+    background: #eee3cd;
+    font-size: 6rem;
 
-  text-align: center;
-  color: #301905;
+    text-align: center;
+    color: #301905;
 
-  user-select: none;
+    user-select: none;
 }
 
 .WordEntryArea,
 .ActiveTilesRow,
 .InactiveTilesRow {
-  margin-top: 2em;
-  margin-bottom: 2em;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
 }

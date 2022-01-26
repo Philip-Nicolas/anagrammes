@@ -11,47 +11,15 @@ const getLanguage = () => "fr";
 
 // region Layout
 
-function Tile(props) {
-  const onDragStart = (e) => {
-    // Add the target element's id to the data transfer object
-    e.dataTransfer.setData("text/html", e.target.outerHTML);
-  }
-
-  return (
-    <div className="Tile" draggable={true} onDragStart={onDragStart}>
-      {props.children}
-    </div>
-  )
-}
-
-function TileSpace(props) {
-  const onDragOver = (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  }
-  const onDrop = (e) => {
-    e.preventDefault();
-    const data = e.dataTransfer.getData("text/html");
-    e.target.appendChild(document.getElementById(data));
-  };
-
-  return (
-    <div className="RowItemContainer">
-      <div className="HeightBasedSquare TileSpace" onDragOver={onDragOver} onDrop={onDrop}>
-        {props.children}
-      </div>
-    </div>
-  )
-}
-
-function TileSpaceRow(props) {
+function Row(props) {
   return (
     <div className="HeightBasedRow">
-      {props.tileSpaces.map(tileIndex => {
+      {props.items.map((item, index) => {
         return (
-          <TileSpace>
-            {tileIndex === null ? null : (<Tile> {props.tiles[tileIndex]} </Tile>)}
-          </TileSpace>
+          // can set key to index since we know container divs won't change
+          <div className="RowItemContainer" key={index}>
+            {item(index)}
+          </div>
         )
       })}
     </div>
@@ -60,20 +28,71 @@ function TileSpaceRow(props) {
 
 // endregion
 
+
 function WordEntryArea(props) {
-  const [tiles, setTiles] = useState(props.letters);
-  const [tileSpaces, setTileSpaces] = useState({
-    active: new Array(tiles.length).fill(null),
-    inactive: [...tiles.keys()],
+  const letters = props.letters;
+
+  const tileRenderers = letters.map(letter => {
+    return (onClick) => (
+      <div className="Tile" onClick={onClick}>
+        {letter}
+      </div>
+    );
   })
+
+  const [activeTiles, setActiveTiles] = useState([...letters.keys()]);
+  const [inactiveTiles, setInactiveTiles] = useState(new Array(letters.length).fill(null));
+
+  /**
+   * handles click event for active tiles.
+   * Tile specified by index in the `tileSpaces.active` array.
+   */
+  const getOnClickActiveTile = (index) => {
+    return () => {
+      const active = [...activeTiles];
+      const inactive = [...inactiveTiles];
+
+      inactive[activeTiles[index]] = active.splice(index, 1)[0];
+      active.push(null);
+
+      setActiveTiles(active);
+      setInactiveTiles(inactive);
+    }
+  }
+
+  const getOnClickInactiveTile = (index) => {
+    return () => {
+      const active = [...activeTiles];
+      const inactive = [...inactiveTiles];
+
+      active[active.indexOf(null)] = inactive[index];
+      inactive[index] = null;
+
+      setActiveTiles(active);
+      setInactiveTiles(inactive);
+    }
+  }
+
+  const getTileSpaces = (tiles, onClickFactory) => {
+    return tiles.map((tileIndex) => {
+      return (index) => {
+        return (
+          <div className="HeightBasedSquare TileSpace">
+            {tileIndex == null ? null : tileRenderers[tileIndex](onClickFactory(index))}
+          </div>
+        )
+      }
+    })
+  }
+
 
   return (
     <div>
       <div className="ActiveTilesRow">
-        <TileSpaceRow tiles={tiles} tileSpaces={tileSpaces.active}/>
+        <Row items={getTileSpaces(activeTiles, getOnClickActiveTile)}/>
       </div>
       <div className="InactiveTilesRow">
-        <TileSpaceRow tiles={tiles} tileSpaces={tileSpaces.inactive}/>
+        <Row items={getTileSpaces(inactiveTiles, getOnClickInactiveTile)}/>
       </div>
     </div>
   )
@@ -88,9 +107,7 @@ function App() {
             Anagrammes
           </p>
         </header>
-        <body>
         <WordEntryArea letters={getLetters().toUpperCase().split("")}/>
-        </body>
         <footer/>
       </div>
     </div>
