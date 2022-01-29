@@ -9,8 +9,8 @@
     background-color: #282c34;
     text-align: center;
     outline: white solid 2px;
-    width: 64rem;
-    max-width: 64rem;
+    width: 90vw;
+    max-width: 120vh;
 }
 
 .App-logo {
@@ -68,18 +68,27 @@
     justify-content: center;
     align-items: center;
 }
+/*endregion*/
+
+/*region Square*/
+
+.SquareContentContainer {
+    display: grid;
+}
+
+.SquareContentContainer > * {
+    grid-area: 1 / 1 / 2 / 2;
+}
 
 .HeightBasedSquare {
-    width: 8rem;
-    height: 8rem;
+    max-width: 50px;
+    /*height: 50%;*/
 }
 
 /*endregion*/
 
 
 .TileSpace {
-
-
     background-color: #015555;
     outline: white solid 2px;
 }
@@ -90,15 +99,17 @@
 }
 
 .Tile {
-    /*width: 100%;*/
-    /*height: 100%;*/
+    height: 100%;
     background: #eee3cd;
-    font-size: 6rem;
 
     text-align: center;
     color: #301905;
 
     user-select: none;
+
+    display: flex;
+    justify-content: center; /* align horizontal */
+    align-items: center;
 }
 
 .WordEntryArea,
