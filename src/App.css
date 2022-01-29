@@ -1,3 +1,12 @@
+:root {
+    --app-bg-color: #282c34;
+    --app-text-color: white;
+    --app-text-color-minus-1: black;
+
+    --app-default-bottom-margin: 2rem;
+}
+
+
 .AppContainer {
     background: blueviolet;
     display: flex;
@@ -6,11 +15,23 @@
 }
 
 .App {
-    background-color: #282c34;
+    background-color: var(--app-bg-color);
     text-align: center;
     outline: white solid 2px;
     width: 90vw;
     max-width: 120vh;
+}
+
+.App * {
+    color: var(--app-text-color);
+}
+
+.App > * {
+    margin-bottom: var(--app-default-bottom-margin);
+}
+
+.App button {
+    color: var(--app-text-color-minus-1);
 }
 
 .App-logo {
@@ -32,7 +53,8 @@
     align-items: center;
     justify-content: center;
     font-size: calc(10px + 2vmin);
-    color: white;
+
+    color: var(--app-text-color);
 }
 
 .App > footer {
@@ -54,6 +76,16 @@
 
 /*region Row*/
 
+.Row {
+    display: flex;
+    flex-direction: row;
+}
+
+.Row-Reverse {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
 .HeightBasedRow {
     display: flex;
     justify-content: center;
@@ -68,25 +100,67 @@
     justify-content: center;
     align-items: center;
 }
-/*endregion*/
 
-/*region Square*/
-
-.SquareContentContainer {
-    display: grid;
-}
-
-.SquareContentContainer > * {
-    grid-area: 1 / 1 / 2 / 2;
-}
-
-.HeightBasedSquare {
-    max-width: 50px;
-    /*height: 50%;*/
-}
 
 /*endregion*/
 
+/*region GameStateDisplayArea*/
+
+.GameStateDisplayArea {
+    justify-content: space-evenly;
+}
+
+.BigNumberDisplay {
+    /*font: bold 1.2rem normal;*/
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.BigNumberDisplay > .Label {
+    font-size: 1em;
+    font-weight: normal;
+}
+
+.BigNumberDisplay > .Value {
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 3em;
+}
+
+.TimeLeft {
+    font-size: 2em;
+}
+
+/*endregion*/
+
+/*region Word Entry */
+
+.WordEntryControls {
+    /*display: flex;*/
+    /*flex-direction: row;*/
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.WordEntryArea,
+.ActiveTilesRow,
+.InactiveTilesRow {
+    margin-top: 0.5rem;
+    margin-bottom: 2rem;
+    justify-content: space-between;
+}
+
+.WordSubmissionFeedbackDisplay {
+    justify-self: flex-start;
+    text-align: start;
+    font-size: 2em;
+    height: 1.2em;
+}
+
+/*endregion*/
+
+/*region Tiles*/
 
 .TileSpace {
     background-color: #015555;
@@ -112,9 +186,23 @@
     align-items: center;
 }
 
-.WordEntryArea,
-.ActiveTilesRow,
-.InactiveTilesRow {
-    margin-top: 2rem;
-    margin-bottom: 2rem;
+/*endregion*/
+
+/*region Square*/
+
+.SquareContentContainer {
+    display: grid;
 }
+
+.SquareContentContainer > * {
+    grid-area: 1 / 1 / 2 / 2;
+}
+
+.HeightBasedSquare {
+    max-width: 50px;
+    /*height: 50%;*/
+}
+
+/*endregion*/
+
+

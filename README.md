@@ -4,11 +4,11 @@
 
 - [ ] Gameplay Screen
   - [ ] Skeleton
-    - [ ] timer
-    - [ ] score
-    - [ ] space for submission feedback
-    - [ ] spaces for letter tiles
-    - [ ] "submit word" button
-    - [ ] "clear word" button
-    - [ ] letter tiles
-    - [ ] "shuffle tiles" button
+    - [x] timer
+    - [x] score
+    - [x] space for submission feedback
+    - [x] spaces for letter tiles
+    - [x] "submit word" button
+    - [x] "clear word" button
+    - [x] letter tiles
+    - [x] "shuffle tiles" button
