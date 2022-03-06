@@ -1,12 +1,11 @@
-
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
  * Shuffles array in place.
  * @param {Array} a items An array containing the items.
  */
 function shuffle(a) {
-  var j, x, i;
+  let j, x, i;
   for (i = a.length - 1; i > 0; i--) {
     j = Math.floor(Math.random() * (i + 1));
     x = a[i];
@@ -44,8 +43,6 @@ function Square(props) {
 
 // endregion
 
-
-
 function Tile(props) {
   return (
     <div className="Tile" onClick={props.onClick}>
@@ -54,16 +51,29 @@ function Tile(props) {
   );
 }
 
-
 function WordSubmissionFeedbackDisplay(props) {
+  const flashMessage = node => {
+    node.style.transition = "opacity ease-in-out 0.1s"
+    node.style.opacity = 1;
+    setTimeout(() => {
+      node.style.transition = "opacity ease-in-out 1s"
+      node.style.opacity = 0;
+    }, 200)
+  }
+
+  const ref = useRef(null);
+  useEffect(() => {
+    flashMessage(ref.current);
+  }, [props.message])
+
   return (
-    <div className="WordSubmissionFeedbackDisplay">
-      {props.children}
+    <div className="WordSubmissionFeedbackDisplay" ref={ref}>
+      {props.message}
     </div>
   )
 }
 
-function WordEntryControls({onShuffle, onSubmit, onClear}) {
+function WordEntryControls({ onShuffle, onSubmit, onClear }) {
   return (
     <div className="Row WordEntryControls">
       <div className="Row">
@@ -79,6 +89,7 @@ function WordEntryControls({onShuffle, onSubmit, onClear}) {
 
 function WordEntryArea(props) {
   const letters = props.letters;
+  const ref = useRef(null);
 
   const tileRenderers = letters.map(letter => {
     return function (onClick) {
@@ -101,32 +112,31 @@ function WordEntryArea(props) {
     }
   })
 
-  const getInitialActiveTiles = () => new Array(letters.length).fill(null);
-  const getInitialInactiveTiles = () => [...letters.keys()];
-
-  const [activeTiles, setActiveTiles] = useState(getInitialActiveTiles());
-  const [inactiveTiles, setInactiveTiles] = useState(getInitialInactiveTiles());
-  const [clickedTile, setClickedTile] = useState(null);
+  const [activeTiles, setActiveTiles] = useState([]);
+  const [inactiveTiles, setInactiveTiles] = useState([]);
   const [feedback, setFeedback] = useState("");
 
-  const resetTiles = () => {
-    setActiveTiles(getInitialActiveTiles());
-    setInactiveTiles(getInitialInactiveTiles());
-  }
+  const resetTiles = useCallback(() => {
+    setActiveTiles(new Array(letters.length).fill(null));
+    setInactiveTiles([...letters.keys()]);
+  }, [letters])
+
+  useEffect(() => {
+    resetTiles();
+  }, [resetTiles])
 
   /**
    * handles click event for active tiles.
    * Tile specified by index in the `tileSpaces.active` array.
    */
   const getOnClickActiveTile = (index) => {
-    return (e) => {
+    return () => {
       const active = [...activeTiles];
       const inactive = [...inactiveTiles];
 
       inactive[activeTiles[index]] = active.splice(index, 1)[0];
       active.push(null);
 
-      setClickedTile(e.target)
       setActiveTiles(active);
       setInactiveTiles(inactive);
     }
@@ -146,12 +156,14 @@ function WordEntryArea(props) {
   }
 
   const getTileSpaces = (tiles, onClickFactory) => {
+    const width = ref.current != null ? Math.round(ref.current.clientWidth / 7) : 64;
+    const fontSize = Math.round(width * 2 / 3);
     return tiles.map((tileIndex) => {
       return (index) => {
         return (
-          <Square className="TileSpace" width="6rem">
+          <Square className="TileSpace" width={`${width}px`}>
             <div className="TileSpace" style={{
-              "font-size": "4em",
+              "font-size": `${fontSize}px`,
             }}>
               {tileIndex == null ? null : tileRenderers[tileIndex](onClickFactory(index))}
             </div>
@@ -170,18 +182,14 @@ function WordEntryArea(props) {
     return activeTiles.map(i => (i != null ? letters[i] : null)).join("");
   }
 
-
   return (
-    <div>
-      <WordSubmissionFeedbackDisplay>
-        {feedback}
-      </WordSubmissionFeedbackDisplay>
+    <div ref={ref}>
+      <WordSubmissionFeedbackDisplay message={feedback}/>
       <div className="ActiveTilesRow">
         <Row items={getTileSpaces(activeTiles, getOnClickActiveTile)}/>
       </div>
       <WordEntryControls onShuffle={shuffleTiles} onClear={resetTiles} onSubmit={() => {
         setFeedback(props.submitWord(getEnteredWord()));
-        console.log(feedback)
       }}/>
       <div className="InactiveTilesRow">
         <Row items={getTileSpaces(inactiveTiles, getOnClickInactiveTile)}/>
