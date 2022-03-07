@@ -3,6 +3,8 @@ import { useState } from "react";
 import { words } from "./words/en-arr";
 // import { words } from "./words/ar-arr";
 
+const { getAllowedWords } = require('./words/utils');
+
 const { WordEntryArea } = require('./presentation/WordEntry.js');
 const { GameStateDisplayArea } = require('./presentation/GameState');
 
@@ -35,23 +37,9 @@ const scoreWord = (word) => {
   return scores[word.length] || 0;
 }
 
-function canMakeWordFromLetters(word, letters) {
-  const indices = [];
-  for (let letter of word) {
-    const i = letters.indexOf(letter);
-    if (i === -1 || indices.includes(i)) {
-      return false;
-    } else {
-      indices.push(i);
-    }
-  }
-  return true;
-}
 
 const letters = getLetters();
-const allowedWords = wordsArray.filter(w => {
-  return canMakeWordFromLetters(w, letters)
-});
+const allowedWords = getAllowedWords(getLetters(), wordsArray);
 
 
 function App() {
