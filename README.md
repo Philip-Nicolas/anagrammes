@@ -48,3 +48,23 @@
   - [ ] Timer Ending does nothing
   - [ ] Fails to flash message when it's the same as the last one
   - [ ] Ensure no slurs in word list
+
+
+## Game Setup
+
+Information required to describe a specific game of Anagrammes.
+
+#### **Need to Store:**
+- Absolutely Necessary
+  - Available Letters
+  - Time Limit
+  - Allowed Words
+  - Scoring Scheme
+- Useful but not Absolutely Necessary
+  - Language / Writing Direction
+  - Dictionary used
+  - Game Version (bugs could affect scoring)
+  - Game Generator Version
+- Possibly Useful
+  - Date Generated
+  - Tips allowed

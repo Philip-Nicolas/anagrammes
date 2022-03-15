@@ -1,6 +1,8 @@
 import Countdown from "react-countdown";
 
-function BigNumberDisplay(props) {
+const { AnagrammesManager } = require('../words/AnagrammesGame');
+
+function BigValueDisplay(props) {
   return (
     <div className="BigNumberDisplay">
       <div className="Label">{props.label}</div>
@@ -8,6 +10,7 @@ function BigNumberDisplay(props) {
     </div>
   )
 }
+
 /**
  * Countdown timer for time left in the level.
  *
@@ -18,21 +21,22 @@ function BigNumberDisplay(props) {
  */
 function Timer({ startDate, duration }) {
   return (
-    <Countdown date={ startDate + duration} overtime={false}
-               renderer={({minutes, seconds}) => (
-                 <BigNumberDisplay label="Time Left" value={`${minutes}:${`${seconds}`.padStart(2, '0')}`}/>
+    <Countdown date={startDate + duration} overtime={false}
+               renderer={({ minutes, seconds }) => (
+                 <BigValueDisplay label="Time Left" value={`${minutes}:${`${seconds}`.padStart(2, '0')}`}/>
                )}/>
   )
 }
 
-function GameStateDisplayArea(props) {
+function GameStateDisplayArea({ gameState }) {
+  const scoreString = `${AnagrammesManager.getScore(gameState)}`.padStart(4, "0");
   return (
     <div className="GameStateDisplayArea HeightBasedRow">
       <span className="TimeLeftDisplay">
-        <Timer startDate={props.startDate} duration={props.duration}/>
+        <Timer startDate={gameState.startTime} duration={gameState.game.setup.duration}/>
       </span>
       <span>
-        <BigNumberDisplay label="Score" value={props.score}/>
+        <BigValueDisplay label="Score" value={scoreString}/>
       </span>
     </div>
   )
