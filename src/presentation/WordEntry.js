@@ -208,7 +208,9 @@ function WordEntryArea(props) {
       <WordSubmissionFeedbackDisplay submissionResult={submissionResult}/>
       <Row>
         {board.layout.activeRow
-          .map(id => new Space(createActiveSpaceProps(id, boardStateManager)))}
+          .map(id => (
+            <Space key={id} {...createActiveSpaceProps(id, boardStateManager)}/>
+          ))}
       </Row>
       <WordEntryControls
         onShuffle={() => {
@@ -236,7 +238,9 @@ function WordEntryArea(props) {
         }}/>
       <Row>
         {board.layout.inactiveRow
-          .map(id => new Space(createInactiveSpaceProps(id, boardStateManager)))}
+          .map(id => (
+            <Space key={id} {...createInactiveSpaceProps(id, boardStateManager)}/>
+          ))}
       </Row>
     </div>
   )

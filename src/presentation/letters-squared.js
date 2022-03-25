@@ -21,7 +21,7 @@ function Space(props) {
   return (
     <Square width={`${props.width}px`}>
       <div className="TileSpace" style={{
-        "font-size": `${props.fontSize}px`,
+        "fontSize": `${props.fontSize}px`,
       }} onClick={props.onClick} onTouchStart={props.onClick}>
         {props.tileId && new Tile(props.tilePropsFactory(props.tileId))}
       </div>
