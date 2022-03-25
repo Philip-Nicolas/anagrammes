@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Row, Space } from "./letters-squared";
 
 /**
  * Shuffles array in place.
@@ -15,40 +16,18 @@ function shuffle(a) {
   return a;
 }
 
-// region Layout
-
-function Row(props) {
+function WordEntryControls({ onShuffle, onSubmit, onClear }) {
   return (
-    <div className="HeightBasedRow">
-      {props.items.map((item, index) => {
-        return (
-          // can set key to index since we know container divs won't change
-          <div className="RowItemContainer" key={index}>
-            {item(index)}
-          </div>
-        )
-      })}
+    <div className="Row WordEntryControls">
+      <div className="Row">
+        <button onClick={onShuffle}>Shuffle</button>
+      </div>
+      <div className="Row-Reverse">
+        <button onClick={onSubmit}>Enter</button>
+        <button onClick={onClear}>Clear</button>
+      </div>
     </div>
   )
-}
-
-function Square(props) {
-  return (
-    <div className="SquareContentContainer" style={{ width: props.width || "auto" }}>
-      <svg viewBox="0 0 1 1"/>
-      {props.children}
-    </div>
-  )
-}
-
-// endregion
-
-function Tile(props) {
-  return (
-    <div className="Tile" onClick={props.onClick}>
-      {props.children}
-    </div>
-  );
 }
 
 function WordSubmissionFeedbackDisplay(props) {
@@ -64,136 +43,201 @@ function WordSubmissionFeedbackDisplay(props) {
   const ref = useRef(null);
   useEffect(() => {
     flashMessage(ref.current);
-  }, [props.message])
+  }, [props.submissionResult]);
 
   return (
     <div className="WordSubmissionFeedbackDisplay" ref={ref}>
-      {props.message}
+      {props.submissionResult ? props.submissionResult.feedback : null}
     </div>
   )
 }
 
-function WordEntryControls({ onShuffle, onSubmit, onClear }) {
-  return (
-    <div className="Row WordEntryControls">
-      <div className="Row">
-        <button onClick={onShuffle}>Shuffle</button>
-      </div>
-      <div className="Row-Reverse">
-        <button onClick={onSubmit}>Enter</button>
-        <button onClick={onClear}>Clear</button>
-      </div>
-    </div>
-  )
+function useAnagrammesBoard(letters) {
+  return useMemo(() => {
+    let lastId = 1;
+    const nextId = () => lastId++;
+
+    const activeRow = letters.map(nextId);
+    const inactiveRow = letters.map(nextId);
+
+    const tileset = {};
+    const startPosition = {};
+
+    letters.forEach((letter, i) => {
+      const id = nextId();
+      tileset[id] = {
+        letter,
+        props: {
+          children: letter,
+        }
+      };
+      startPosition[id] = inactiveRow[i];
+    });
+
+    return {
+      tileset,
+      startPosition,
+      layout: {
+        activeRow,
+        inactiveRow,
+      }
+    };
+  }, [letters]);
+}
+
+function useBoardStateManager(board) {
+  //TODO make reset position consistent with usual position format (currently uses tile as key instead of space)
+  const createResetTilePositions = (layout, resetPosition) => {
+    const positions = {};
+
+    // create empty positions object
+    layout.activeRow.forEach(space => positions[space] = null);
+    layout.inactiveRow.forEach(space => positions[space] = null);
+
+    // assign tiles to startPositions
+    [...Object.keys(resetPosition)].forEach(tile => positions[resetPosition[tile]] = tile);
+
+    return positions;
+  };
+
+  const [resetPositions, setResetPositions] = useState(board.startPosition);
+  const [tilePositions, setTilePositions] = useState(createResetTilePositions(board.layout, resetPositions));
+
+  const copyPositions = (positions = tilePositions) => {
+    return {
+      ...positions,
+    }
+  };
+  const swapTilesAt = (spaceA, spaceB, positions = copyPositions()) => {
+    [positions[spaceA], positions[spaceB]] = [positions[spaceB], positions[spaceA]];
+    return positions;
+  };
+  const justifyRow = (spaces, positions = copyPositions()) => {
+    const tiles = getTilesAt(spaces, positions);
+
+    for (let i = 0; i < tiles.length; i++) {
+      let deleteCount;
+      if (tiles[i] === null && 0 < (deleteCount = tiles.slice(i).findIndex(tile => tile !== null))) {
+        tiles.push(...tiles.splice(i, deleteCount));
+      }
+    }
+
+    spaces.forEach((space, i) => {
+      positions[space] = tiles[i];
+    })
+
+    return positions;
+  }
+  const resetBoard = (positions = resetPositions) => {
+    setTilePositions(createResetTilePositions(board.layout, positions));
+  }
+  const getTileAt = (space, positions = tilePositions) => positions[space];
+  const getTilesAt = (spaces, positions = tilePositions) => spaces.map(space => positions[space]);
+
+  return {
+    copyPositions,
+    setTilePositions,
+    setResetPositions,
+    resetBoard,
+    createResetTilePositions,
+    swapTilesAt,
+    getResetPosition: tile => resetPositions[tile],
+    getTileAt,
+    getTilesAt,
+    getFirstEmptySpace: spaces => {
+      for (let i = 0; i < spaces.length; i++) {
+        if (tilePositions[spaces[i]] === null) return spaces[i];
+      }
+    },
+    justifyRow,
+  };
 }
 
 function WordEntryArea(props) {
-  const letters = props.letters;
-  const ref = useRef(null);
+  const width = 64;
+  const fontSize = Math.round(width * 2 / 3);
 
-  const tileRenderers = letters.map(letter => {
-    return function (onClick) {
-      // let style = {};
-      //
-      // if (clickedTile) {
-      //   const dx = clickedTile.offsetLeft;
-      //   const dy = clickedTile.offsetHeight;
-      //   style.transform = `translate(-${dx}px, -${dy}px)`;
-      //   setTimeout(() => {
-      //     style.transform = 'translate(0, 0)'
-      //   }, 500);
-      // }
+  const board = useAnagrammesBoard(props.letters);
 
-      return (
-        <Tile onClick={onClick}>
-          {letter}
-        </Tile>
-      );
+  const createActiveTileProps = (tile, space, boardStateManager) => {
+    return {
+      ...board.tileset[tile].props,
+      onClick: () => {
+        const newPositions = boardStateManager.copyPositions();
+
+        boardStateManager.swapTilesAt(space, boardStateManager.getResetPosition(tile), newPositions);
+        boardStateManager.justifyRow(board.layout.activeRow, newPositions);
+
+        boardStateManager.setTilePositions(newPositions);
+      },
     }
-  })
-
-  const [activeTiles, setActiveTiles] = useState([]);
-  const [inactiveTiles, setInactiveTiles] = useState([]);
-  const [feedback, setFeedback] = useState("");
-
-  const resetTiles = useCallback(() => {
-    setActiveTiles(new Array(letters.length).fill(null));
-    setInactiveTiles([...letters.keys()]);
-  }, [letters])
-
-  useEffect(() => {
-    resetTiles();
-  }, [resetTiles])
-
-  /**
-   * handles click event for active tiles.
-   * Tile specified by index in the `tileSpaces.active` array.
-   */
-  const getOnClickActiveTile = (index) => {
-    return () => {
-      const active = [...activeTiles];
-      const inactive = [...inactiveTiles];
-
-      inactive[activeTiles[index]] = active.splice(index, 1)[0];
-      active.push(null);
-
-      setActiveTiles(active);
-      setInactiveTiles(inactive);
-    }
-  }
-
-  const getOnClickInactiveTile = (index) => {
-    return () => {
-      const active = [...activeTiles];
-      const inactive = [...inactiveTiles];
-
-      active[active.indexOf(null)] = inactive[index];
-      inactive[index] = null;
-
-      setActiveTiles(active);
-      setInactiveTiles(inactive);
-    }
-  }
-
-  const getTileSpaces = (tiles, onClickFactory) => {
-    const width = ref.current != null ? Math.round(ref.current.clientWidth / 7) : 64;
-    const fontSize = Math.round(width * 2 / 3);
-    return tiles.map((tileIndex) => {
-      return (index) => {
-        return (
-          <Square className="TileSpace" width={`${width}px`}>
-            <div className="TileSpace" style={{
-              "font-size": `${fontSize}px`,
-            }}>
-              {tileIndex == null ? null : tileRenderers[tileIndex](onClickFactory(index))}
-            </div>
-          </Square>
-        )
+  };
+  const createActiveSpaceProps = (space, boardStateManager) => {
+    return {
+      width,
+      fontSize,
+      tileId: boardStateManager.getTileAt(space),
+      tilePropsFactory: (tile) => {
+        return createActiveTileProps(tile, space, boardStateManager);
       }
-    })
+    };
+  }
+  const createInactiveTileProps = (id) => {
+    return {
+      ...board.tileset[id].props,
+    }
+  };
+  const createInactiveSpaceProps = (space, boardStateManager) => {
+    return {
+      width,
+      fontSize,
+      tileId: boardStateManager.getTileAt(space),
+      tilePropsFactory: createInactiveTileProps,
+      onClick: () => boardStateManager.setTilePositions(
+        boardStateManager.swapTilesAt(space, boardStateManager.getFirstEmptySpace(board.layout.activeRow))
+      ),
+    };
   }
 
-  const shuffleTiles = () => {
-    shuffle(letters);
-    resetTiles();
-  }
+  const boardStateManager = useBoardStateManager(board);
 
-  const getEnteredWord = () => {
-    return activeTiles.map(i => (i != null ? letters[i] : null)).join("");
-  }
+  const [submissionResult, setSubmissionResult] = useState({});
 
   return (
-    <div ref={ref}>
-      <WordSubmissionFeedbackDisplay message={feedback}/>
-      <div className="ActiveTilesRow">
-        <Row items={getTileSpaces(activeTiles, getOnClickActiveTile)}/>
-      </div>
-      <WordEntryControls onShuffle={shuffleTiles} onClear={resetTiles} onSubmit={() => {
-        setFeedback(props.submitWord(getEnteredWord()));
-      }}/>
-      <div className="InactiveTilesRow">
-        <Row items={getTileSpaces(inactiveTiles, getOnClickInactiveTile)}/>
-      </div>
+    <div>
+      <WordSubmissionFeedbackDisplay submissionResult={submissionResult}/>
+      <Row>
+        {board.layout.activeRow
+          .map(id => new Space(createActiveSpaceProps(id, boardStateManager)))}
+      </Row>
+      <WordEntryControls
+        onShuffle={() => {
+          const tiles = [...Object.keys(board.startPosition)];
+          const startSpaces = [...Object.values(board.startPosition)];
+          shuffle(startSpaces);
+
+          const newResetPosition = {};
+          tiles.forEach((k, i) => newResetPosition[k] = startSpaces[i]);
+
+          boardStateManager.setResetPositions(newResetPosition);
+          boardStateManager.resetBoard(newResetPosition);
+        }}
+        onClear={() => {
+          boardStateManager.resetBoard();
+        }}
+        onSubmit={() => {
+          const word = boardStateManager.getTilesAt(board.layout.activeRow)
+            .map(tile => tile?board.tileset[tile].letter: null)
+            .join("");
+
+          const submissionResult = props.submitWord(word);
+          setSubmissionResult(submissionResult);
+          if (submissionResult.score > 0) boardStateManager.resetBoard();
+        }}/>
+      <Row>
+        {board.layout.inactiveRow
+          .map(id => new Space(createInactiveSpaceProps(id, boardStateManager)))}
+      </Row>
     </div>
   )
 }

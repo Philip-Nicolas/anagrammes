@@ -13,7 +13,7 @@ function App() {
   const submitWord = (word) => {
     const submissionResult = AnagrammesManager.submitWord(gameState, word);
     setGameState(submissionResult.gameState);
-    return submissionResult.feedback;
+    return submissionResult;
   }
 
   return (
